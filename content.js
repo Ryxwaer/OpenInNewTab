@@ -3,15 +3,28 @@ const configuredUrl = "https://www.notion.so/datasentics/Journal-12e7c7daedaa41b
 
 // Helper function to find the closest anchor element
 function findClosestAnchor(element) {
-  while (element && element.tagName !== 'A') {
+  let treshold = 3;
+  while (element && element.tagName !== 'A' && treshold >= 0) {
     element = element.parentElement;
+    treshold--;
   }
-  return element;
+  
+  // If the element found is an anchor, log and return it.
+  if (element && element.tagName === 'A') {
+    console.log(`- NLO: Found closest anchor: ${element.tagName}`);
+    return element;
+  }
+  
+  // If no anchor is found, log a message indicating so.
+  console.log('- NLO: No anchor found within threshold');
+  return null;
 }
+
 
 // Helper function to check if an element is inside a container with the class "notion-frame"
 function isInsideLayoutContent(element) {
   while (element) {
+    // get rel attribute of the element
     if (element.classList && element.classList.contains('notion-frame')) {
       return true;
     }
@@ -27,7 +40,7 @@ document.addEventListener('click', function (e) {
 
   if (anchor) {
     // Check if the clicked link is inside an element with class 'notion-frame'
-    if (isInsideLayoutContent(anchor)) {
+    if (isInsideLayoutContent(anchor) && anchor.getAttribute('rel') == "noopener noreferrer") {
       // Ignore this link (let the normal Notion behavior happen)
       console.log("- NLO: Ignoring link click inside notion-frame");
       return;
@@ -41,6 +54,7 @@ document.addEventListener('click', function (e) {
       e.preventDefault();  // Prevent default behavior
       e.stopPropagation(); // Stop the event from bubbling up
       window.open(linkUrl, '_blank'); // Open the link in a new tab
+      console.log("- NLO: Opening link in new tab.");
     }
   }
 }, true);
